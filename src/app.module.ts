@@ -9,13 +9,14 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeORMConfig } from './configs/typeorm.config';
 import { VotesModule } from './votes/votes.module';
+import { NestedCommentsModule } from './nested-comments/nested-comments.module';
 
 @Module({
   imports: [GraphQLModule.forRoot<ApolloDriverConfig>({
     driver: ApolloDriver,
     autoSchemaFile: 'schema.gql',
   }),
-  TypeOrmModule.forRoot(typeORMConfig),UsersModule, PostsModule, CommentsModule, VotesModule],
+  TypeOrmModule.forRoot(typeORMConfig),UsersModule, PostsModule, CommentsModule, VotesModule, NestedCommentsModule],
   controllers: [AppController],
   providers: [AppService],
 })
