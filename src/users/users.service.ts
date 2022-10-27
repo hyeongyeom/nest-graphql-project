@@ -11,24 +11,24 @@ export class UsersService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  create(createUserInput: CreateUserInput) {
-    const newUser=this.userRepository.create(createUserInput)
-    return this.userRepository.save(newUser)
+  create(createUserInput: CreateUserInput): Promise<User> {
+    const newUser = this.userRepository.create(createUserInput);
+    return this.userRepository.save(newUser);
   }
 
-  findAll():Promise<User[]> {
+  findAll(): Promise<User[]> {
     return this.userRepository.find();
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return this.userRepository.findOne(id);
   }
 
-  update(id: number, updateUserInput: UpdateUserInput) {
+  update(id: string, updateUserInput: UpdateUserInput) {
     return this.userRepository.save({ id, updateUserInput });
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return this.userRepository.delete({ id });
   }
 }

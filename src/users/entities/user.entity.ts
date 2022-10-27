@@ -1,8 +1,8 @@
 import { Post } from '../../posts/entities/post.entity';
 import { Comment } from 'src/comments/entities/comment.entity';
-import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { ObjectType, Field, Int, InputType } from '@nestjs/graphql';
 import { Exclude } from 'class-transformer';
-import { IsEmail, IsString, Length } from 'class-validator';
+import { IsEmail, IsEnum, IsNumber, IsString, Length } from 'class-validator';
 import {
   Column,
   Entity,
@@ -11,13 +11,21 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { NestedComment } from 'src/nested-comments/entities/nested-comment.entity';
+import { UserRole } from '../enums/user-role.enum';
+import { Content } from 'src/common/date.entity';
 
-@Entity()
+@InputType('UserInputType', { isAbstract: true })
 @ObjectType()
-export class User {
-  @PrimaryGeneratedColumn()
-  @Field((type) => Int)
-  id: number;
+@Entity({ name: 'users' })
+export class User extends Content {
+  @Field(() => String)
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Field(() => Int, { description: '유저에게 공개되는 아이디' })
+  @Column({ name: 'public_id', unique: true })
+  @IsNumber()
+  publicId: number;
 
   @Field(() => String)
   @Column()
@@ -46,9 +54,10 @@ export class User {
   // @Field(() => String)
   // avatar
 
-  @Column()
-  @Field(() => String)
-  role?: string;
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.User })
+  @Field(() => UserRole)
+  @IsEnum(UserRole)
+  role: UserRole;
 
   /**
    * relation field
@@ -58,37 +67,23 @@ export class User {
   @Field(() => [Post])
   posts?: Post[];
 
-  @OneToMany(() => Comment, (comment) => comment.user)
-  @Field((type) => [Comment], { nullable: true })
-  comments?: Comment[];
-
-  @ManyToMany(() => Comment, (comment) => comment.user)
-  likeComments: Comment[];
-
   @ManyToMany(() => Post, (post) => post.agreeUsers)
   agreePosts: Post[];
 
   @ManyToMany(() => Post, (post) => post.disagreeUsers)
   disagreePosts: Post[];
 
+  @OneToMany(() => Comment, (comment) => comment.user)
+  @Field(() => [Comment], { nullable: true })
+  comments?: Comment[];
+
+  @ManyToMany(() => Comment, (comment) => comment.user)
+  likeComments: Comment[];
+
   @OneToMany(() => NestedComment, (nestedComment) => nestedComment.user)
-  @Field((type) => [NestedComment], { nullable: true })
+  @Field(() => [NestedComment], { nullable: true })
   nestedComments?: NestedComment[];
 
   @ManyToMany(() => NestedComment, (nestedComment) => nestedComment.likeUsers)
   likeNestedComments?: NestedComment[];
-
-  // @Field(() => [Vote] {
-  //   description:'투표참여 글',
-  //   nullable:true
-  // })
-
-  // @ManyToMany(()=> Vote,(vote) => vote.user,{
-  //   nullable:true
-  // })
-  // vote?:Vote[];
-
-  // @Column()
-  // @Field(() => String)
-  // likePosts
 }
