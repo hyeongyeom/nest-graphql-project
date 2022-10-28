@@ -37,4 +37,10 @@ export class UsersResolver {
   removeUser(@Args('id', { type: () => String }) id: string) {
     return this.usersService.remove(id);
   }
+
+  @Query((returns) => User)
+  @UseGuards(GqlAuthGuard)
+  whoAmI(@CurrentUser() user: User) {
+    return this.usersService.findById(user.id);
+  }
 }
