@@ -38,7 +38,7 @@ export class User {
   @Field(() => String)
   role?:string
 
-  @OneToMany(()=> Comment,(commnet) => comment.user)
+  @OneToMany(()=> Comment,(comment) => comment.user)
   @Field((type) => [User],{nullable:true})
   likeComments?:Comment[];
 
