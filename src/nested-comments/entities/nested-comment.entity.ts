@@ -1,20 +1,19 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { NestedComment } from 'src/nested-comments/entities/nested-comment.entity';
 import { Post } from 'src/posts/entities/post.entity';
 import { User } from 'src/users/entities/user.entity';
+import { Comment } from 'src/comments/entities/comment.entity';
 import {
   Column,
-  Entity,
   JoinColumn,
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity()
 @ObjectType()
-export class Comment {
+export class NestedComment {
   @PrimaryGeneratedColumn()
   @Field((type) => Int)
   id: number;
@@ -43,36 +42,33 @@ export class Comment {
   @Column()
   liked:number;
 
-
-   /**
+  /**
    * relation field
    */
 
-  @Field()
-  @ManyToOne(() => User, (user) => user.comments, {
+
+  @Field(()=>User)
+  @ManyToOne(() => User, (user) => user.nestedComments, {
     nullable: true,
   })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Field()
-  @ManyToOne(() => Post, (post) => post.comments, {
-    nullable: true,
-  })
-  @JoinColumn({ name: 'post_id' })
-  post: Post;
-
-  @Field()
-  @ManyToMany(() => User, (user) => user.likeComments, {
+  @Field(()=>[User],{nullable:true})
+  @ManyToMany(() => User, (user) => user.likeNestedComments, {
     nullable: true,
   })
   @JoinTable()
-  likeUsers: User[];
+  likeUsers?: User[];
 
-  @Field()
-  @ManyToOne(() => NestedComment, (nestedComment) => nestedComment.comment, {
-    nullable: true,
+  @Field(() => [Comment], { nullable: true })
+  @OneToMany(() => Comment, (comment) => comment.nestedComments)
+  comment?: Comment;
+
+  @Field(()=> Post)
+  @ManyToOne(() => Post, (post) => post.nestedComments,{
+    nullable:false
   })
-  @JoinColumn({ name: 'nestedComment_id' })
-  nestedComments: NestedComment[];
+  @JoinColumn()
+  post: Post;
 }
